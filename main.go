@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/mysql"
@@ -9,8 +10,8 @@ import (
 
 type Person struct {
 	gorm.Model
-	Name string
-	Age  int
+	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 
 	// Migrar estrutura para o banco
 	db.AutoMigrate(&Person{})
+
 
 	// Criar uma instancia Fiber
 	app := fiber.New()
@@ -41,8 +43,11 @@ func main() {
 			return c.Status(400).SendString("Erro ao processar")
 		}
 		db.Create(person)
-		return c.JSON(person)
+		return c.SendString(fmt.Sprintf("Nome %s", person.Name))
 	})
+
+	// person := Person{Name: "Zé das Couves", Age: 45}
+	// db.Create(&person)
 
 	// Iniciar o servidor
 	log.Fatal(app.Listen(":3000"))
